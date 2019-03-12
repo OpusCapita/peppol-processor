@@ -2,7 +2,7 @@
 
 Peppol OpusCapita Access Point processor service running on Andariel Platform.
 
-The service reads files from the `peppol.processor.queue.in.name` queue and processes them. The processing includes:
+The service reads files from the `peppol.processing.queue.in.name:peppol-processing` queue and processes them. The processing includes:
 
 * Moving file to long-term storage
 * Creating metadata if it doesn't exists in the container message
