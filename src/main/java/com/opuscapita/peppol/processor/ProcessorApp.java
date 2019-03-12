@@ -47,5 +47,4 @@ public class ProcessorApp {
         return new MessageListenerAdapter(receiver, "receiveMessage");
     }
 
-
 }
