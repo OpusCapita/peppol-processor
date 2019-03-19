@@ -17,7 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"com.opuscapita.peppol.processor", "com.opuscapita.peppol.commons"})
 public class ProcessorApp {
 
-    @Value("${peppol.processing.queue.in.name}")
+    @Value("${peppol.processor.queue.in.name}")
     private String queueIn;
 
     private ContainerMessageConsumer consumer;

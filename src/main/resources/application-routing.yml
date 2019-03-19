@@ -5,91 +5,91 @@ peppol:
         mask: '0007:5567026934.*|0007:5560790445.*|0007:5565568770.*|0007:5591341705.*'
         source: peppol-inbound
         endpoints:
-          - peppol-validator
-          - peppol-a2a-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundA2A"
 
       - description: 'Peppol to XiB'
         mask: '0007:.*|0088:73.*|9908:987582561.*|9908:991952799.*|9908:917097321.*|9908:915068553.*'
         source: peppol-inbound
         endpoints:
-          - peppol-validator
-          - peppol-xib-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundXIB"
 
       - description: 'Peppol to A2A'
         mask: '.*'
         source: peppol-inbound
         endpoints:
-          - peppol-validator
-          - peppol-a2a-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundA2A"
 
       - description: 'Peppol to A2A (reprocess, exception)'
         mask: '0007:5567026934.*|0007:5560790445.*|0007:5565568770.*'
         source: peppol-reprocess-inbound
         endpoints:
-          - peppol-validator
-          - peppol-a2a-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundA2A"
 
       - description: 'Peppol to XiB (reprocess)'
         mask: '0007:.*|0088:73.*|9908:987582561.*|9908:991952799.*|9908:917097321.*|9908:915068553.*'
         source: peppol-reprocess-inbound
         endpoints:
-          - peppol-validator
-          - peppol-xib-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundXIB"
 
       - description: 'Peppol to A2A (reprocess)'
         mask: '.*'
         source: peppol-reprocess-inbound
         endpoints:
-          - peppol-validator
-          - peppol-a2a-outbound
+          - "peppol.message.validate"
+          - "peppol.message.outboundA2A"
 
       - description: 'A2A to Peppol'
         source: peppol-a2a-inbound
         endpoints:
-          - peppol-validator
-          - peppol-outbound
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
+          - "peppol.message.validate"
+          - "peppol.message.outbound"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
 
       - description: 'XiB to Peppol'
         source: peppol-xib-inbound
         endpoints:
-          - peppol-validator
-          - peppol-outbound
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
+          - "peppol.message.validate"
+          - "peppol.message.outbound"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
 
       - description: 'Gateway to Peppol (reprocess)'
         source: peppol-reprocess-outbound
         endpoints:
-          - peppol-validator
-          - peppol-outbound
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
-          - "peppol-outbound:exchange=peppol-delayed,x-delay=3600000"
+          - "peppol.message.validate"
+          - "peppol.message.outbound"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"
+          - "peppol.message.outbound:exchange=peppol.message.outboundDelay,x-delay=3600000"

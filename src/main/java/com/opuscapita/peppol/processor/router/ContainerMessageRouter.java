@@ -21,7 +21,7 @@ public class ContainerMessageRouter {
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
-        String source = cm.getSourceEndpoint().getName();
+        String source = cm.getEndpoint().getSource();
 
         for (Route route : routingConfiguration.getRoutes()) {
             if (route.getSource().equals(source)) {
@@ -37,7 +37,7 @@ public class ContainerMessageRouter {
             }
         }
 
-        cm.setProcessingException("Cannot define route for " + cm.toLog() + " originated from " + source);
+        cm.getHistory().addError("Cannot define route for " + cm.getFileName() + " originated from " + source);
         return null;
     }
 

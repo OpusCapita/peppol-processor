@@ -39,7 +39,7 @@ public class ContainerMetadataValidator {
                 metadata = extractMetadata(cm);
             } catch (Exception e) {
                 logger.error("Could not extract the metadata from file: " + cm.getFileName(), e);
-                cm.setProcessingException(e.getMessage());
+                cm.getHistory().addError(e.getMessage());
                 return;
             }
         }
@@ -60,7 +60,7 @@ public class ContainerMetadataValidator {
 
         if (!missingFields.isEmpty()) {
             String tmp = missingFields.stream().collect(Collectors.joining(", "));
-            cm.setProcessingException("Missing some metadata information [" + tmp + "] for the file: " + cm.getFileName());
+            cm.getHistory().addError("Missing some metadata information [" + tmp + "] for the file: " + cm.getFileName());
         }
     }
 
@@ -79,4 +79,5 @@ public class ContainerMetadataValidator {
         cm.setMetadata(metadata);
         return metadata;
     }
+
 }
