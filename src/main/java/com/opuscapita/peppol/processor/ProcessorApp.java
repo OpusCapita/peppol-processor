@@ -3,7 +3,9 @@ package com.opuscapita.peppol.processor;
 import com.opuscapita.peppol.commons.queue.consume.CommonMessageReceiver;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,11 @@ public class ProcessorApp {
     public MessageListenerAdapter listenerAdapter(@NotNull CommonMessageReceiver receiver) {
         receiver.setContainerMessageConsumer(consumer);
         return new MessageListenerAdapter(receiver, "receiveMessage");
+    }
+
+    @Bean
+    public AmqpAdmin amqpAdmin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
     }
 
 }
