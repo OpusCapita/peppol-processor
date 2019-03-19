@@ -3,9 +3,8 @@ package com.opuscapita.peppol.processor;
 import com.opuscapita.peppol.commons.queue.consume.CommonMessageReceiver;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +49,8 @@ public class ProcessorApp {
     }
 
     @Bean
-    public AmqpAdmin amqpAdmin(ConnectionFactory connectionFactory) {
-        return new RabbitAdmin(connectionFactory);
+    public Queue queue() {
+        return new Queue(queueIn);
     }
 
 }
