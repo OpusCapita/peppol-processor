@@ -2,6 +2,7 @@ package com.opuscapita.peppol.processor.router;
 
 import com.opuscapita.peppol.commons.container.ContainerMessage;
 import com.opuscapita.peppol.commons.container.state.Route;
+import com.opuscapita.peppol.commons.container.state.Source;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,10 @@ public class ContainerMessageRouter {
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
-        String source = cm.getEndpoint().getSource();
+        Source source = cm.getEndpoint().getSource();
 
         for (Route route : routingConfiguration.getRoutes()) {
-            if (route.getSource().equals(source)) {
+            if (route.getSource().equals(source.name().toLowerCase())) {
                 if (route.getMask() != null) {
                     if (cm.getMetadata().getRecipientId().matches(route.getMask())) {
                         logger.debug("Route selected by source and mask for the file: " + cm.getFileName());

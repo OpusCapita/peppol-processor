@@ -16,12 +16,16 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessorMessageConsumer.class);
+
+    @Value("${peppol.processor.queue.out.name}")
+    private String queueOut;
 
     private Storage storage;
     private MessageQueue messageQueue;
@@ -83,10 +87,9 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        String outputQueue = cm.popRoute();
-        messageQueue.convertAndSend(outputQueue, cm);
+        messageQueue.convertAndSend(queueOut, cm);
         cm.getHistory().addInfo("Processing completed successfully");
-        logger.info("The message: " + cm.toKibana() + " successfully processed and delivered to " + outputQueue + " queue");
+        logger.info("The message: " + cm.toKibana() + " successfully processed and delivered to " + queueOut + " queue");
     }
 
 }
