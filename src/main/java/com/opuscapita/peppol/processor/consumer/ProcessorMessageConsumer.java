@@ -48,7 +48,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
     @Override
     public void consume(@NotNull ContainerMessage cm) throws Exception {
-        cm.setStep(ProcessStep.PREPROCESS);
+        cm.setStep(ProcessStep.PROCESS);
         cm.getHistory().addInfo("Received and started processing");
         logger.info("Processor received the message: " + cm.toKibana());
 
