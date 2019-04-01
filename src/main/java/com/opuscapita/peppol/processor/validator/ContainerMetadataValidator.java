@@ -60,7 +60,7 @@ public class ContainerMetadataValidator {
 
         if (!missingFields.isEmpty()) {
             String tmp = missingFields.stream().collect(Collectors.joining(", "));
-            cm.getHistory().addError("Missing some metadata information [" + tmp + "] for the file: " + cm.getFileName());
+            cm.getHistory().addError("Missing metadata information [" + tmp + "]");
         }
     }
 

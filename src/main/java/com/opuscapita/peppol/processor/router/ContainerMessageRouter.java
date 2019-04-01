@@ -38,7 +38,7 @@ public class ContainerMessageRouter {
             }
         }
 
-        cm.getHistory().addError("Cannot define route for " + cm.getFileName() + " originated from " + source);
+        cm.getHistory().addError("Cannot define route for file coming from " + source);
         return null;
     }
 
