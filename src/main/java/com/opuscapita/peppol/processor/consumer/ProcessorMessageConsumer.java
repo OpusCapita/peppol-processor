@@ -56,7 +56,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             throw new IllegalArgumentException("File name is empty in received message: " + cm.toKibana());
         }
 
-        logger.info("Checking metadata of the message: " + cm.getFileName());
+        logger.debug("Checking metadata of the message: " + cm.getFileName());
         metadataValidator.validate(cm);
         if (cm.getHistory().hasError()) {
             logger.info("Processing failed for the message: " + cm.toKibana() + " reason: " + cm.getHistory().getLastLog().getMessage());
@@ -67,13 +67,13 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        logger.info("Moving message: " + cm.getFileName() + " to long-term storage");
+        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
         PeppolMessageMetadata metadata = cm.getMetadata();
         String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);
 
-        logger.info("Loading route info for the message: " + cm.getFileName());
+        logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
         cm.getHistory().addInfo("Route info loaded");
         cm.setRoute(route);
