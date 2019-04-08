@@ -88,9 +88,10 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
+        eventReporter.reportStatus(cm);
         messageQueue.convertAndSend(queueOut, cm);
         cm.getHistory().addInfo("Processing completed successfully");
-        logger.info("The message: " + cm.toKibana() + " successfully processed and delivered to " + queueOut + " queue");
+        logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
     }
 
 }
