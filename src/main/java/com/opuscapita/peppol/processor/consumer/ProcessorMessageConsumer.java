@@ -1,7 +1,8 @@
 package com.opuscapita.peppol.processor.consumer;
 
 import com.opuscapita.peppol.commons.container.ContainerMessage;
-import com.opuscapita.peppol.commons.container.metadata.PeppolMessageMetadata;
+import com.opuscapita.peppol.commons.container.metadata.ContainerMessageMetadata;
+import com.opuscapita.peppol.commons.container.metadata.MetadataValidator;
 import com.opuscapita.peppol.commons.container.state.ProcessStep;
 import com.opuscapita.peppol.commons.container.state.Route;
 import com.opuscapita.peppol.commons.eventing.EventReporter;
@@ -10,7 +11,6 @@ import com.opuscapita.peppol.commons.queue.MessageQueue;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import com.opuscapita.peppol.commons.storage.Storage;
 import com.opuscapita.peppol.processor.router.ContainerMessageRouter;
-import com.opuscapita.peppol.processor.validator.ContainerMetadataValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -31,13 +31,14 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     private MessageQueue messageQueue;
     private EventReporter eventReporter;
     private TicketReporter ticketReporter;
+    private MetadataValidator metadataValidator;
     private ContainerMessageRouter messageRouter;
-    private ContainerMetadataValidator metadataValidator;
+
 
     @Autowired
     public ProcessorMessageConsumer(Storage storage, MessageQueue messageQueue,
                                     EventReporter eventReporter, TicketReporter ticketReporter,
-                                    ContainerMessageRouter messageRouter, ContainerMetadataValidator metadataValidator) {
+                                    MetadataValidator metadataValidator, ContainerMessageRouter messageRouter) {
         this.storage = storage;
         this.messageQueue = messageQueue;
         this.eventReporter = eventReporter;
@@ -68,7 +69,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         }
 
         logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
-        PeppolMessageMetadata metadata = cm.getMetadata();
+        ContainerMessageMetadata metadata = cm.getMetadata();
         String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);

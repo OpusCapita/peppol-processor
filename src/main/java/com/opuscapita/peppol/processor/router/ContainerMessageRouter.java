@@ -22,7 +22,7 @@ public class ContainerMessageRouter {
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
-        Source source = cm.getEndpoint().getSource();
+        Source source = cm.getSource();
 
         for (Route route : routingConfiguration.getRoutes()) {
             if (route.getSource().equals(source.name().toLowerCase())) {
