@@ -34,7 +34,6 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     private MetadataValidator metadataValidator;
     private ContainerMessageRouter messageRouter;
 
-
     @Autowired
     public ProcessorMessageConsumer(Storage storage, MessageQueue messageQueue,
                                     EventReporter eventReporter, TicketReporter ticketReporter,
@@ -49,7 +48,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
     @Override
     public void consume(@NotNull ContainerMessage cm) throws Exception {
-        cm.setStep(ProcessStep.PROCESS);
+        cm.setStep(ProcessStep.PROCESSOR);
         cm.getHistory().addInfo("Received and started processing");
         logger.info("Processor received the message: " + cm.toKibana());
 
@@ -88,10 +87,10 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        eventReporter.reportStatus(cm);
-        messageQueue.convertAndSend(queueOut, cm);
         cm.getHistory().addInfo("Processing completed successfully");
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
+        eventReporter.reportStatus(cm);
+        messageQueue.convertAndSend(queueOut, cm);
     }
 
 }
