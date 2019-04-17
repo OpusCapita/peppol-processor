@@ -10,6 +10,7 @@ import com.opuscapita.peppol.commons.eventing.TicketReporter;
 import com.opuscapita.peppol.commons.queue.MessageQueue;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import com.opuscapita.peppol.commons.storage.Storage;
+import com.opuscapita.peppol.commons.storage.StorageException;
 import com.opuscapita.peppol.processor.router.ContainerMessageRouter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 public class ProcessorMessageConsumer implements ContainerMessageConsumer {
@@ -68,10 +70,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         }
 
         logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
-        ContainerMessageMetadata metadata = cm.getMetadata();
-        String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
-        cm.getHistory().addInfo("Moved to long-term storage");
-        cm.setFileName(path);
+        moveFileToLongTermStorage(cm, 0);
 
         logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
@@ -91,6 +90,28 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
         eventReporter.reportStatus(cm);
         messageQueue.convertAndSend(queueOut, cm);
+    }
+
+    private void moveFileToLongTermStorage(ContainerMessage cm, Integer flag) throws Exception {
+        try {
+            ContainerMessageMetadata metadata = cm.getMetadata();
+            String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
+            cm.getHistory().addInfo("Moved to long-term storage");
+            cm.setFileName(path);
+
+        } catch (StorageException e) {
+
+            // a workaround for a race-condition issue, sometimes we try to move the file before it actually stored
+            if (e.getCause() instanceof HttpClientErrorException.NotFound && flag < 3) {
+                logger.warn("Could not find the file to move, will retry after two seconds.");
+                flag++;
+                Thread.sleep(3000);
+                moveFileToLongTermStorage(cm, flag);
+
+            } else {
+                throw e;
+            }
+        }
     }
 
 }
