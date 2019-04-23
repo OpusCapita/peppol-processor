@@ -62,11 +62,12 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         logger.debug("Checking metadata of the message: " + cm.getFileName());
         metadataValidator.validate(cm);
         if (cm.getHistory().hasError()) {
-            logger.info("Processing failed for the message: " + cm.toKibana() + " reason: " + cm.getHistory().getLastLog().getMessage());
+            String shortDescription = "Processing failed for '" + cm.getFileName() + "' reason: " + cm.getHistory().getLastLog().getMessage();
+            logger.info(shortDescription);
             cm.getHistory().addInfo("Processing failed: invalid metadata");
 
             eventReporter.reportStatus(cm);
-            ticketReporter.reportWithContainerMessage(cm, null, "Processing failed for the message: " + cm.getFileName());
+            ticketReporter.reportWithContainerMessage(cm, null, shortDescription);
             return;
         }
 
@@ -75,17 +76,17 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
         logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
-        cm.getHistory().addInfo("Route info loaded");
-        cm.setRoute(route);
-
         if (cm.getHistory().hasError()) {
-            logger.info("Processing failed for the message: " + cm.toKibana() + " reason: " + cm.getHistory().getLastLog().getMessage());
+            String shortDescription = "Processing failed for '" + cm.getFileName() + "' reason: " + cm.getHistory().getLastLog().getMessage();
+            logger.info(shortDescription);
             cm.getHistory().addInfo("Processing failed: invalid route");
 
             eventReporter.reportStatus(cm);
-            ticketReporter.reportWithContainerMessage(cm, null, "Processing failed for the message: " + cm.getFileName());
+            ticketReporter.reportWithContainerMessage(cm, null, shortDescription);
             return;
         }
+        cm.getHistory().addInfo("Route info loaded");
+        cm.setRoute(route);
 
         cm.getHistory().addInfo("Processing completed successfully");
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
