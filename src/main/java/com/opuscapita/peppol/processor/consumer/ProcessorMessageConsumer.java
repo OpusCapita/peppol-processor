@@ -10,6 +10,7 @@ import com.opuscapita.peppol.commons.eventing.TicketReporter;
 import com.opuscapita.peppol.commons.queue.MessageQueue;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import com.opuscapita.peppol.commons.storage.Storage;
+import com.opuscapita.peppol.commons.storage.StorageException;
 import com.opuscapita.peppol.processor.router.ContainerMessageRouter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 public class ProcessorMessageConsumer implements ContainerMessageConsumer {
@@ -71,7 +71,6 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
         moveFileToLongTermStorage(cm);
 
         logger.debug("Loading route info for the message: " + cm.getFileName());
@@ -96,8 +95,10 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
     // a workaround for a race-condition issue, sometimes we try to move the file before it actually stored
     // maybe it is better to move this retry logic to peppol-commons
-    @Retryable(value = {HttpClientErrorException.NotFound.class}, maxAttempts = 3, backoff = @Backoff(delay = 3000))
+    @Retryable(value = {StorageException.class}, maxAttempts = 3, backoff = @Backoff(delay = 3000))
     private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
+        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
+
         ContainerMessageMetadata metadata = cm.getMetadata();
         String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
         cm.getHistory().addInfo("Moved to long-term storage");
