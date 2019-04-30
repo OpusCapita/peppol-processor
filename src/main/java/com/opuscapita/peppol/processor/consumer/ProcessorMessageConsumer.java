@@ -84,7 +84,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             ticketReporter.reportWithContainerMessage(cm, null, shortDescription);
             return;
         }
-        cm.getHistory().addInfo("Route info loaded");
+        cm.getHistory().addInfo("Route info loaded, destination: " + route.getDestination());
         cm.setRoute(route);
 
         cm.getHistory().addInfo("Processing completed successfully");
@@ -104,5 +104,4 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);
     }
-
 }
