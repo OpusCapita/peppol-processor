@@ -1,7 +1,6 @@
 package com.opuscapita.peppol.processor.consumer;
 
 import com.opuscapita.peppol.commons.container.ContainerMessage;
-import com.opuscapita.peppol.commons.container.metadata.ContainerMessageMetadata;
 import com.opuscapita.peppol.commons.container.metadata.MetadataValidator;
 import com.opuscapita.peppol.commons.container.state.ProcessStep;
 import com.opuscapita.peppol.commons.container.state.Route;
@@ -9,8 +8,6 @@ import com.opuscapita.peppol.commons.eventing.EventReporter;
 import com.opuscapita.peppol.commons.eventing.TicketReporter;
 import com.opuscapita.peppol.commons.queue.MessageQueue;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
-import com.opuscapita.peppol.commons.storage.Storage;
-import com.opuscapita.peppol.commons.storage.StorageException;
 import com.opuscapita.peppol.processor.router.ContainerMessageRouter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -18,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,7 +25,6 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     @Value("${peppol.processor.queue.out.name}")
     private String queueOut;
 
-    private Storage storage;
     private MessageQueue messageQueue;
     private EventReporter eventReporter;
     private TicketReporter ticketReporter;
@@ -38,10 +32,8 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     private ContainerMessageRouter messageRouter;
 
     @Autowired
-    public ProcessorMessageConsumer(Storage storage, MessageQueue messageQueue,
-                                    EventReporter eventReporter, TicketReporter ticketReporter,
+    public ProcessorMessageConsumer(MessageQueue messageQueue, EventReporter eventReporter, TicketReporter ticketReporter,
                                     MetadataValidator metadataValidator, ContainerMessageRouter messageRouter) {
-        this.storage = storage;
         this.messageQueue = messageQueue;
         this.eventReporter = eventReporter;
         this.messageRouter = messageRouter;
@@ -71,8 +63,6 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        moveFileToLongTermStorage(cm);
-
         logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
         if (cm.getHistory().hasError()) {
@@ -91,17 +81,5 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
         eventReporter.reportStatus(cm);
         messageQueue.convertAndSend(queueOut, cm);
-    }
-
-    // a workaround for a race-condition issue, sometimes we try to move the file before it actually stored
-    // maybe it is better to move this retry logic to peppol-commons
-    @Retryable(value = {StorageException.class}, maxAttempts = 3, backoff = @Backoff(delay = 3000))
-    private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
-        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
-
-        ContainerMessageMetadata metadata = cm.getMetadata();
-        String path = storage.moveToPermanent(cm.getFileName(), metadata.getSenderId(), metadata.getRecipientId());
-        cm.getHistory().addInfo("Moved to long-term storage");
-        cm.setFileName(path);
     }
 }
