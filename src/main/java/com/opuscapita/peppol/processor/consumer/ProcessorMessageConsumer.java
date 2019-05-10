@@ -101,11 +101,11 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     // a workaround for a race-condition issue, sometimes we try to move the file before it actually stored
     // maybe it is better to move this retry logic to peppol-commons
     @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 9000))
-    public void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
+    public synchronized void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
         logger.info("Moving message: " + cm.getFileName() + " to long-term storage");
 
         ContainerMessageMetadata metadata = cm.getMetadata();
-        String dest = StorageUtils.createUserPath(coldFolder, FilenameUtils.getName(cm.getFileName()), metadata.getSenderId(), metadata.getRecipientId());
+        String dest = StorageUtils.createUserPath(coldFolder, "", metadata.getSenderId(), metadata.getRecipientId());
         String path = storage.move(cm.getFileName(), dest);
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);
