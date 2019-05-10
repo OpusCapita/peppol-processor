@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
@@ -100,7 +101,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     // a workaround for a race-condition issue, sometimes we try to move the file before it actually stored
     // maybe it is better to move this retry logic to peppol-commons
     @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 9000))
-    private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
+    public void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
         logger.info("Moving message: " + cm.getFileName() + " to long-term storage");
 
         ContainerMessageMetadata metadata = cm.getMetadata();
@@ -108,5 +109,10 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         String path = storage.move(cm.getFileName(), dest);
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);
+    }
+
+    @Recover
+    public void fallbackMoveToLongTermStorage(Exception e, ContainerMessage cm) {
+        logger.warn("Couldn't move message: " + cm.getFileName() + " to long-term storage, moving on with the current path");
     }
 }
