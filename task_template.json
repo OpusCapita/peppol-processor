@@ -26,7 +26,14 @@
     "oc-consul-injection": {
       "redis/password": "${SECRET_:env_REDIS}",
       "mq/user": "${SECRET_:env_RABBITMQUSER}",
-      "mq/password": "${SECRET_:env_RABBITMQPASS}"
+      "mq/password": "${SECRET_:env_RABBITMQPASS}",
+      "snc/enabled": "true",
+      "snc/rest/url": "${PEPPOL_:env_SNCURL}",
+      "snc/rest/username": "${PEPPOL_:env_SNCUSER}",
+      "snc/rest/password": "${PEPPOL_:env_SNCPASS}",
+      "snc/bsc": "peppol-AP",
+      "snc/from": "peppol-AP@",
+      "snc/businessGroup": "Itella Information"
     },
     "limit-cpu": "0.2",
     "limit-memory": "700M",
