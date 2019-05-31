@@ -5,16 +5,22 @@ peppol:
         mask: "0007:5567026934.*|0007:5560790445.*|0007:5565568770.*|0007:5591341705.*"
         source: "network"
         destination: "a2a"
+        retry: 10
+        delay: 3600000
 
       - description: "Peppol to XiB"
         mask: "0007:.*|0088:73.*|9908:987582561.*|9908:991952799.*|9908:917097321.*|9908:915068553.*"
         source: "network"
         destination: "xib"
+        retry: 10
+        delay: 3600000
 
       - description: "Peppol to A2A"
         mask: ".*"
         source: "network"
         destination: "a2a"
+        retry: 10
+        delay: 3600000
 
       - description: "A2A to Peppol"
         source: "a2a"
