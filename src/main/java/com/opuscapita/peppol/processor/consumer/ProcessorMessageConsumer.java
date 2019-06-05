@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +74,8 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        tryToMoveFileToLongTermStorage(cm);
+        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
+        moveFileToLongTermStorage(cm);
 
         logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
@@ -93,41 +93,18 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
         cm.getHistory().addInfo("Processing completed successfully");
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
-        eventReporter.reportStatus(cm);
+        // eventReporter.reportStatus(cm); DISABLED
         messageQueue.convertAndSend(queueOut, cm);
     }
 
-    // THIS ANNOTATION IS NOT BEHAVING RIGHT ...
+    // THIS ANNOTATION IS NOT BEHAVING ...
     @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 9000))
-    public void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
-        logger.info("Moving message: " + cm.getFileName() + " to long-term storage");
-
+    private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
         // Race-condition issue, sometimes we try to move the file before it actually stored
         ContainerMessageMetadata metadata = cm.getMetadata();
         String dest = StorageUtils.createUserPath(coldFolder, "", metadata.getSenderId(), metadata.getRecipientId());
         String path = storage.move(cm.getFileName(), dest);
         cm.getHistory().addInfo("Moved to long-term storage");
         cm.setFileName(path);
-    }
-
-    // ...THAT'S WHY I PUT THIS HORRIBLE WORKAROUND HERE
-    private void tryToMoveFileToLongTermStorage(ContainerMessage cm) throws Exception {
-        int i = 0;
-        Exception t;
-        do {
-            try {
-                moveFileToLongTermStorage(cm);
-                return;
-            } catch (Exception e) {
-                t = e;
-                Thread.sleep(5000);
-            }
-        } while (++i < 5);
-        throw t;
-    }
-
-    @Recover
-    public void fallbackMoveToLongTermStorage(Exception e, ContainerMessage cm) {
-        logger.warn("Couldn't move message: " + cm.getFileName() + " to long-term storage, moving on with the current path");
     }
 }
