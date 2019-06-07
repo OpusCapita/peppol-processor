@@ -93,7 +93,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
 
         cm.getHistory().addInfo("Processing completed successfully");
         logger.info("The message: " + cm.getFileName() + " successfully processed and delivered to " + queueOut + " queue");
-        // eventReporter.reportStatus(cm); DISABLED
+        eventReporter.reportStatus(cm);
         messageQueue.convertAndSend(queueOut, cm);
     }
 
