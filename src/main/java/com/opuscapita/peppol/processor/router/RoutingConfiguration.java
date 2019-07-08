@@ -2,14 +2,12 @@ package com.opuscapita.peppol.processor.router;
 
 import com.opuscapita.peppol.commons.container.state.Route;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@RefreshScope
 @ConfigurationProperties(prefix = "peppol.routing-config")
 public class RoutingConfiguration {
 
