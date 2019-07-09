@@ -26,10 +26,10 @@ peppol:
         source: "a2a"
         destination: "network"
         retry: 10
-        delay: 300000
+        delay: 1800000
 
       - description: "XiB to Peppol"
         source: "xib"
         destination: "network"
         retry: 10
-        delay: 300000
+        delay: 1800000
