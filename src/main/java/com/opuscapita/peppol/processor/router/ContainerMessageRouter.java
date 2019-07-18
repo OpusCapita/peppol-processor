@@ -15,14 +15,20 @@ public class ContainerMessageRouter {
     private final static Logger logger = LoggerFactory.getLogger(ContainerMessageRouter.class);
 
     private final RoutingConfiguration routingConfiguration;
+    private final SiriusRoutingConfiguration siriusRoutingConfiguration;
 
     @Autowired
-    public ContainerMessageRouter(RoutingConfiguration routingConfiguration) {
+    public ContainerMessageRouter(RoutingConfiguration routingConfiguration, SiriusRoutingConfiguration siriusRoutingConfiguration) {
         this.routingConfiguration = routingConfiguration;
+        this.siriusRoutingConfiguration = siriusRoutingConfiguration;
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
         Source source = cm.getSource();
+
+        if (checkSiriusRoute(cm)) {
+            return routingConfiguration.getRoute("sirius");
+        }
 
         for (Route route : routingConfiguration.getRoutes()) {
             if (route.getSource().equals(source.name().toLowerCase())) {
@@ -42,4 +48,7 @@ public class ContainerMessageRouter {
         return null;
     }
 
+    private boolean checkSiriusRoute(ContainerMessage cm) {
+        return Source.NETWORK.equals(cm.getSource()) && siriusRoutingConfiguration.isSiriusReceiver(cm.getCustomerId());
+    }
 }
