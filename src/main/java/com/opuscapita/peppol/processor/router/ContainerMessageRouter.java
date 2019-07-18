@@ -26,13 +26,14 @@ public class ContainerMessageRouter {
     public Route loadRoute(@NotNull ContainerMessage cm) {
         Source source = cm.getSource();
 
-        if (checkSiriusRoute(cm)) {
-            return routingConfiguration.getRoute("sirius");
-        }
-
         for (Route route : routingConfiguration.getRoutes()) {
             if (route.getSource().equals(source.name().toLowerCase())) {
-                if (route.getMask() != null) {
+                if (route.getDestination().equals("sirius")) {
+                    if (siriusRoutingConfiguration.isSiriusReceiver(cm.getCustomerId())) {
+                        logger.debug("Route selected by receiver for the file: " + cm.getFileName());
+                        return new Route(route);
+                    }
+                } else if (route.getMask() != null) {
                     if (cm.getMetadata().getRecipientId().matches(route.getMask())) {
                         logger.debug("Route selected by source and mask for the file: " + cm.getFileName());
                         return new Route(route);
@@ -46,9 +47,5 @@ public class ContainerMessageRouter {
 
         cm.getHistory().addError("Cannot define route for file coming from " + source);
         return null;
-    }
-
-    private boolean checkSiriusRoute(ContainerMessage cm) {
-        return Source.NETWORK.equals(cm.getSource()) && siriusRoutingConfiguration.isSiriusReceiver(cm.getCustomerId());
     }
 }
