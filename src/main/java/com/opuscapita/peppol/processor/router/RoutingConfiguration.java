@@ -16,9 +16,4 @@ public class RoutingConfiguration {
     public List<Route> getRoutes() {
         return routes;
     }
-
-    public Route getRoute(String destination) {
-        return routes.stream().filter(r -> r.getDestination().equals(destination)).findFirst().orElse(null);
-    }
-
 }
