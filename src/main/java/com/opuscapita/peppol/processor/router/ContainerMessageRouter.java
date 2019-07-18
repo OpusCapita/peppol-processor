@@ -26,10 +26,6 @@ public class ContainerMessageRouter {
     public Route loadRoute(@NotNull ContainerMessage cm) {
         Source source = cm.getSource();
 
-        if (checkSiriusRoute(cm)) {
-            return routingConfiguration.getRoute("sirius");
-        }
-
         for (Route route : routingConfiguration.getRoutes()) {
             if (route.getSource().equals(source.name().toLowerCase())) {
                 if (route.getMask() != null) {

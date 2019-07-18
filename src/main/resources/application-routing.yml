@@ -1,12 +1,6 @@
 peppol:
   routing-config:
     routes:
-      - description: "Peppol to Sirius"
-        source: "network"
-        destination: "sirius"
-        retry: 10
-        delay: 1200000
-
       - description: "Peppol to A2A (exception)"
         mask: "0007:5567026934.*|0007:5560790445.*|0007:5565568770.*|0007:5591341705.*"
         source: "network"
