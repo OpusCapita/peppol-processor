@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -97,10 +95,7 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
         messageQueue.convertAndSend(queueOut, cm);
     }
 
-    // THIS ANNOTATION IS NOT BEHAVING ...
-    @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 9000))
     private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
-        // Race-condition issue, sometimes we try to move the file before it actually stored
         ContainerMessageMetadata metadata = cm.getMetadata();
         String dest = StorageUtils.createUserPath(coldFolder, "", metadata.getSenderId(), metadata.getRecipientId());
         String path = storage.move(cm.getFileName(), dest);
