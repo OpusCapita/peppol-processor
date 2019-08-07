@@ -1,7 +1,6 @@
 package com.opuscapita.peppol.processor.consumer;
 
 import com.opuscapita.peppol.commons.container.ContainerMessage;
-import com.opuscapita.peppol.commons.container.metadata.ContainerMessageMetadata;
 import com.opuscapita.peppol.commons.container.metadata.MetadataValidator;
 import com.opuscapita.peppol.commons.container.state.ProcessStep;
 import com.opuscapita.peppol.commons.container.state.Route;
@@ -12,6 +11,7 @@ import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
 import com.opuscapita.peppol.commons.storage.Storage;
 import com.opuscapita.peppol.commons.storage.StorageUtils;
 import com.opuscapita.peppol.processor.router.ContainerMessageRouter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.InputStream;
 
 @Component
 public class ProcessorMessageConsumer implements ContainerMessageConsumer {
@@ -96,10 +98,16 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
     }
 
     private void moveFileToLongTermStorage(ContainerMessage cm) throws Exception {
-        ContainerMessageMetadata metadata = cm.getMetadata();
-        String dest = StorageUtils.createUserPath(coldFolder, "", metadata.getSenderId(), metadata.getRecipientId());
-        String path = storage.move(cm.getFileName(), dest);
+        String currentPath = cm.getFileName();
+        String filename = FilenameUtils.getName(currentPath);
+        String destination = StorageUtils.createUserPath(coldFolder, "", cm.getMetadata().getSenderId(), cm.getMetadata().getRecipientId());
+
+        try (InputStream content = storage.get(cm.getFileName())) {
+            String newPath = storage.put(content, destination, filename);
+            cm.setFileName(newPath);
+        }
+
+        storage.remove(currentPath);
         cm.getHistory().addInfo("Moved to long-term storage");
-        cm.setFileName(path);
     }
 }
