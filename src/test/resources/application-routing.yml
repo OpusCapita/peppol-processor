@@ -39,3 +39,9 @@ peppol:
         destination: "network"
         retry: 10
         delay: 1800000
+
+      - description: "Sirius to Peppol"
+        source: "sirius"
+        destination: "network"
+        retry: 10
+        delay: 1800000
