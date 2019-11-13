@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ayltai/circleci-openjdk-node:jdk8-node11
+      - image: circleci/node:8
     working_directory: ~/build
     steps:
       - checkout
@@ -11,7 +11,7 @@ jobs:
       - run:
           name: "prepare buildprocess scripts"
           command: |
-              git clone https://github.com/OpusCapita/duriel.git -b feature/secret-creation ../buildprocess
+              git clone https://github.com/OpusCapita/duriel.git -b develop ../buildprocess
               cd ../buildprocess
               npm install
               npm test
@@ -31,7 +31,7 @@ jobs:
 
   copy_to_env:
     docker:
-      - image: ayltai/circleci-openjdk-node:jdk8-node11
+      - image: circleci/node:8
     working_directory: ~/build
 
     steps:
@@ -47,7 +47,7 @@ jobs:
 
   build_base:
     docker:
-      - image: ayltai/circleci-openjdk-node:jdk8-node11
+      - image: circleci/node:8
     working_directory: ~/build
     steps:
       - checkout

@@ -21,8 +21,6 @@ services:
       SERVICE_3038_CHECK_HTTP: /api/health/check
       SERVICE_3038_CHECK_INTERVAL: 15s
       SERVICE_3038_CHECK_TIMEOUT: 3s
-      RABBITMQ_USER: ${SECRET_develop_RABBITMQUSER}
-      RABBITMQ_PASS: ${SECRET_develop_RABBITMQPASS}
     ports:
      - '3038:3038'
 
@@ -47,8 +45,6 @@ services:
       - '5672:5672'
       - '15672:15672'
     environment:
-      RABBITMQ_DEFAULT_USER: ${SECRET_develop_RABBITMQUSER}
-      RABBITMQ_DEFAULT_PASS: ${SECRET_develop_RABBITMQPASS}
       SERVICE_5672_NAME: 'rabbitmq'
 
   redis:
