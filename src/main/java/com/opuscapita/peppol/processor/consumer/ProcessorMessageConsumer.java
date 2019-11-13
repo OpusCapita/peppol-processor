@@ -72,8 +72,8 @@ public class ProcessorMessageConsumer implements ContainerMessageConsumer {
             return;
         }
 
-        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
-        moveFileToLongTermStorage(cm);
+//        logger.debug("Moving message: " + cm.getFileName() + " to long-term storage");
+//        moveFileToLongTermStorage(cm);
 
         logger.debug("Loading route info for the message: " + cm.getFileName());
         Route route = messageRouter.loadRoute(cm);
