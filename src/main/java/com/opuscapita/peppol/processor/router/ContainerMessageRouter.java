@@ -1,5 +1,6 @@
 package com.opuscapita.peppol.processor.router;
 
+import com.opuscapita.peppol.commons.auth.AuthorizationService;
 import com.opuscapita.peppol.commons.container.ContainerMessage;
 import com.opuscapita.peppol.commons.container.state.Route;
 import com.opuscapita.peppol.commons.container.state.Source;
@@ -7,45 +8,61 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ContainerMessageRouter {
 
     private final static Logger logger = LoggerFactory.getLogger(ContainerMessageRouter.class);
 
-    private final RoutingConfiguration routingConfiguration;
-    private final SiriusRoutingConfiguration siriusRoutingConfiguration;
+    private final RestTemplate restTemplate;
+    private final AuthorizationService authService;
 
     @Autowired
-    public ContainerMessageRouter(RoutingConfiguration routingConfiguration, SiriusRoutingConfiguration siriusRoutingConfiguration) {
-        this.routingConfiguration = routingConfiguration;
-        this.siriusRoutingConfiguration = siriusRoutingConfiguration;
+    public ContainerMessageRouter(AuthorizationService authService, RestTemplateBuilder restTemplateBuilder) {
+        this.authService = authService;
+        this.restTemplate = restTemplateBuilder.build();
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
-        Source source = cm.getSource();
-
-        for (Route route : routingConfiguration.getRoutes()) {
-            if (route.getSource().equals(source.name().toLowerCase())) {
-                if (route.getDestination().equals("sirius")) {
-                    if (siriusRoutingConfiguration.isSiriusReceiver(cm.getCustomerId())) {
-                        logger.debug("Route selected by receiver for the file: " + cm.getFileName());
-                        return new Route(route);
-                    }
-                } else if (route.getMask() != null) {
-                    if (cm.getMetadata().getRecipientId().matches(route.getMask())) {
-                        logger.debug("Route selected by source and mask for the file: " + cm.getFileName());
-                        return new Route(route);
-                    }
-                } else {
-                    logger.debug("Route selected by source for the file: " + cm.getFileName());
-                    return new Route(route);
-                }
-            }
+        if (cm.isOutbound()) {
+            return new Route(Source.NETWORK);
         }
 
-        cm.getHistory().addError("Cannot define route for file coming from " + source);
-        return null;
+        Source destination = fetchBusinessPlatform(cm.getCustomerId());
+        return new Route(destination);
+    }
+
+    private Source fetchBusinessPlatform(String customerId) {
+        String endpoint = getEndpoint(customerId);
+        logger.info("Sending get-route request to endpoint: " + endpoint + " for customer: " + customerId);
+
+        HttpHeaders headers = new HttpHeaders();
+        authService.setAuthorizationHeader(headers);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        try {
+            ResponseEntity<Source> result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, Source.class);
+            Source route = result.getBody();
+            logger.info("Fetched route as " + route + " for customer: " + customerId);
+            return route;
+        } catch (Exception e) {
+            logger.error("Error occurred while trying to query the ROUTE for file: " + customerId, e);
+            return Source.A2A;
+        }
+    }
+
+    private String getEndpoint(String customerId) {
+        String[] result = customerId.split(":");
+        return UriComponentsBuilder
+                .fromUriString("http://peppol-smp")
+                .port(3045)
+                .path("/api/get-business-platform/" + result[0] + "/" + result[1])
+                .toUriString();
     }
 }
