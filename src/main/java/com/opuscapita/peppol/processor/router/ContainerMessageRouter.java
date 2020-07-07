@@ -39,7 +39,7 @@ public class ContainerMessageRouter {
 
     private Source fetchBusinessPlatform(String customerId) {
         String endpoint = getEndpoint(customerId);
-        logger.info("Sending get-route request to endpoint: " + endpoint + " for customer: " + customerId);
+        logger.debug("Sending get-route request to endpoint: " + endpoint + " for customer: " + customerId);
 
         HttpHeaders headers = new HttpHeaders();
         authService.setAuthorizationHeader(headers);
