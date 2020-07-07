@@ -47,7 +47,7 @@ public class ContainerMessageRouter {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
         try {
-            ResponseEntity<Source> result = restTemplate.exchange(endpoint, HttpMethod.POST, entity, Source.class);
+            ResponseEntity<Source> result = restTemplate.exchange(endpoint, HttpMethod.GET, entity, Source.class);
             Source route = result.getBody();
             logger.info("Fetched route as " + route + " for customer: " + customerId);
             return route;
