@@ -16,8 +16,10 @@ RUN ./gradlew build || return 0
 FROM openjdk:8
 LABEL author="Ibrahim Bilge <Ibrahim.Bilge@opuscapita.com>"
 
+## setting heap size automatically to the container memory limits
+ENV JAVA_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm"
+
 RUN apt-get update && apt-get -y install redis-server
-RUN pip install redis
 
 ENV APP_HOME=/usr/app/
 WORKDIR $APP_HOME
@@ -29,4 +31,4 @@ HEALTHCHECK --interval=15s --timeout=30s --start-period=40s --retries=15 \
   CMD wget --quiet --tries=1 --spider http://localhost:3038/api/health/check || exit 1
 
 EXPOSE 3038
-CMD start.sh
+CMD nohup redis-server & java $JAVA_OPTS -jar peppol-processor.jar
