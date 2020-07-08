@@ -19,6 +19,7 @@ LABEL author="Ibrahim Bilge <Ibrahim.Bilge@opuscapita.com>"
 ENV APP_HOME=/usr/app/
 WORKDIR $APP_HOME
 
+COPY --from=TEMP_BUILD_IMAGE $APP_HOME/start.sh .
 COPY --from=TEMP_BUILD_IMAGE $APP_HOME/build/libs/peppol-processor.jar .
 
 RUN apt-get update && apt-get -y install redis-server
