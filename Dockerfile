@@ -16,13 +16,14 @@ RUN ./gradlew build || return 0
 FROM openjdk:8
 LABEL author="Ibrahim Bilge <Ibrahim.Bilge@opuscapita.com>"
 
+RUN apt-get update && apt-get -y install redis-server
+RUN pip install redis
+
 ENV APP_HOME=/usr/app/
 WORKDIR $APP_HOME
 
 COPY --from=TEMP_BUILD_IMAGE $APP_HOME/start.sh .
 COPY --from=TEMP_BUILD_IMAGE $APP_HOME/build/libs/peppol-processor.jar .
-
-RUN apt-get update && apt-get -y install redis-server
 
 HEALTHCHECK --interval=15s --timeout=30s --start-period=40s --retries=15 \
   CMD wget --quiet --tries=1 --spider http://localhost:3038/api/health/check || exit 1
