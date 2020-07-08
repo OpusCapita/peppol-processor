@@ -2,6 +2,7 @@ package com.opuscapita.peppol.processor;
 
 import com.opuscapita.peppol.commons.queue.consume.CommonMessageReceiver;
 import com.opuscapita.peppol.commons.queue.consume.ContainerMessageConsumer;
+import com.opuscapita.peppol.processor.router.CachedRoute;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -13,6 +14,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @SpringBootApplication
 @ComponentScan({"com.opuscapita.peppol.processor", "com.opuscapita.peppol.commons"})
@@ -51,6 +54,18 @@ public class ProcessorApp {
     @Bean
     public Queue queue() {
         return new Queue(queueIn);
+    }
+
+    @Bean
+    public JedisConnectionFactory jedisConnectionFactory() {
+        return new JedisConnectionFactory();
+    }
+
+    @Bean
+    public RedisTemplate<String, CachedRoute> redisTemplate() {
+        RedisTemplate<String, CachedRoute> template = new RedisTemplate<>();
+        template.setConnectionFactory(jedisConnectionFactory());
+        return template;
     }
 
 }
