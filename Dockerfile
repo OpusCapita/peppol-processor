@@ -30,4 +30,4 @@ HEALTHCHECK --interval=15s --timeout=30s --start-period=40s --retries=15 \
   CMD wget --quiet --tries=1 --spider http://localhost:3038/api/health/check || exit 1
 
 EXPOSE 3038
-ENTRYPOINT exec java $JAVA_OPTS -jar peppol-processor.jar
+CMD nohup redis-server & java $JAVA_OPTS -jar peppol-processor.jar
