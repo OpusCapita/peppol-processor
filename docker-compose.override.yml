@@ -5,4 +5,4 @@ services:
         volumes:
             - ./src:/usr/app/src
             - ./gradle:/usr/app/gradle
-        command: 'gradlew bootRun'
+        command: 'gradle bootRun'
