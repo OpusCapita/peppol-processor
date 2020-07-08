@@ -55,17 +55,4 @@ public class ProcessorApp {
     public Queue queue() {
         return new Queue(queueIn);
     }
-
-    @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory();
-    }
-
-    @Bean
-    public RedisTemplate<String, CachedRoute> redisTemplate() {
-        RedisTemplate<String, CachedRoute> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        return template;
-    }
-
 }
