@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Optional;
+
 @Component
 public class ContainerMessageRouter {
 
@@ -21,11 +23,13 @@ public class ContainerMessageRouter {
 
     private final RestTemplate restTemplate;
     private final AuthorizationService authService;
+    private final CachedRouteRepository routeRepository;
 
     @Autowired
-    public ContainerMessageRouter(AuthorizationService authService, RestTemplateBuilder restTemplateBuilder) {
+    public ContainerMessageRouter(AuthorizationService authService, RestTemplateBuilder restTemplateBuilder, CachedRouteRepository routeRepository) {
         this.authService = authService;
         this.restTemplate = restTemplateBuilder.build();
+        this.routeRepository = routeRepository;
     }
 
     public Route loadRoute(@NotNull ContainerMessage cm) {
@@ -33,11 +37,18 @@ public class ContainerMessageRouter {
             return new Route(Source.NETWORK);
         }
 
-        Source destination = fetchBusinessPlatform(cm.getCustomerId());
+        String receiver = cm.getCustomerId();
+        Optional<CachedRoute> cachedRoute = routeRepository.findById(receiver);
+        if (cachedRoute.isPresent()) {
+            return new Route(cachedRoute.get().getDestination());
+        }
+
+        Source destination = queryBusinessPlatform(cm.getCustomerId());
+        routeRepository.save(new CachedRoute(receiver, destination));
         return new Route(destination);
     }
 
-    private Source fetchBusinessPlatform(String customerId) {
+    private Source queryBusinessPlatform(String customerId) {
         String endpoint = getEndpoint(customerId);
         logger.debug("Sending get-route request to endpoint: " + endpoint + " for customer: " + customerId);
 
