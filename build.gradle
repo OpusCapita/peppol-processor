@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compile 'com.google.guava:guava:24.0-jre'
-    compile 'com.opuscapita.peppol:peppol-commons:1.0.29'
+    compile 'com.opuscapita.peppol:peppol-commons:1.0.30'
 
     compile (group:'redis.clients',name:'jedis',version:'2.9.0') {
         artifact {
