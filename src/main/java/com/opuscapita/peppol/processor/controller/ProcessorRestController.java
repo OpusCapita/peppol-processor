@@ -20,12 +20,13 @@ public class ProcessorRestController {
         this.routeRepository = routeRepository;
     }
 
-    @GetMapping("/clear-cache/{icd}/{identifier}")
+    @GetMapping("/public/clear-cache/{icd}/{identifier}")
     public void clearCache(@PathVariable String icd, @PathVariable String identifier) throws Exception {
         try {
             routeRepository.deleteById(icd + ":" + identifier);
+            logger.info("Cache reset for participant: " + icd + ":" + identifier);
         } catch (Exception e) {
-            logger.error("Failed to clear the cache for: " + icd + ":" + identifier);
+            logger.error("Failed to clear the cache for: " + icd + ":" + identifier, e);
         }
     }
 }
