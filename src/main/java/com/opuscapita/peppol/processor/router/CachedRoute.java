@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
 
-@RedisHash("CachedRoute")
+@RedisHash(value = "CachedRoute", timeToLive = 86400)
 public class CachedRoute implements Serializable {
 
     private String id;
